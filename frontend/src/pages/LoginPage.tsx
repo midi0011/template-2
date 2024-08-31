@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+// src/pages/LoginPage.tsx
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import InputSample from "../components/formElement/InputSample";
+import { AlertContext } from '../context/AlertContext'; // Updated import path
+import { LoaderContext } from "../context/LoadingContext";
 
 interface FormProps {
     username: string;
@@ -12,6 +15,8 @@ export default function LoginPage() {
         username: "",
         password: "",
     });
+    const { setAlert } = useContext(AlertContext); // Updated to AlertContext
+    const { setIsLoading } = useContext(LoaderContext); // Updated to LoaderContext
 
     const navigate = useNavigate();
 
@@ -26,7 +31,7 @@ export default function LoginPage() {
     const inputList = [
         {
             name: "username",
-            type: "text", // Corrected type
+            type: "text",
             required: true,
             label: "Username",
             placeholder: "Enter your username",
@@ -35,7 +40,7 @@ export default function LoginPage() {
         },
         {
             name: "password",
-            type: "password", // Corrected type
+            type: "password",
             required: true,
             label: "Password",
             placeholder: "Enter your password",
@@ -47,6 +52,7 @@ export default function LoginPage() {
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsLoading(true); // Set isLoading to true
         try {
             const res = await fetch("http://localhost:5000/api/auth/login", {
                 method: "POST",
@@ -56,13 +62,19 @@ export default function LoginPage() {
                 credentials: "include",
                 body: JSON.stringify(formData),
             });
+
             const data = await res.json();
 
-            if (data.message === "Login successful") {
+            if (!res.ok) {
+                setAlert(data.message, 'error');
+            } else {
                 navigate("/dashboard");
             }
         } catch (error) {
             console.log(error);
+            setAlert("An unexpected error occurred", 'error');
+        } finally {
+            setIsLoading(false);
         }
     };
 

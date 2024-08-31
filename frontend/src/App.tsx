@@ -3,6 +3,7 @@ import DashboardPage from "./pages/DashboardPage"
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { LoaderProvider } from "./context/LoadingContext"
 
 function App() {
   const router = createBrowserRouter([
@@ -28,7 +29,9 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <LoaderProvider>
+        <RouterProvider router={router} />
+      </LoaderProvider>
     </>
   )
 }
